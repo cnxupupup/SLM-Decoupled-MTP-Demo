@@ -27,13 +27,50 @@
 
 <div class="container pt-5 mt-5 shadow-lg p-5 mb-5 bg-white rounded">
 	<div class="text-center">
-	<!-- <h2 style="display: flex; align-items: center; justify-content: center">
-		<object type="image/svg+xml" data="pics/square-f5.svg" style="width: 72px; height: 72px;"></object>-TTS: <span style="margin-left: 10px;"></span> 
-	</h2> -->
-      <h2>Speech-Language Models with Decoupled Tokenizers and
-Multi-Token Prediction</h2>
-		<h5><i>Anonymous Authors</i></h5>
-      <!-- <h5> <a href="https://github.com/SWivid/F5-TTS" target="_blank" rel="noopener noreferrer">Code</a>; <a href="https://arxiv.org/abs/2410.06885" target="_blank" rel="noopener noreferrer">Paper</a> </h5> -->
+      <h3>Speech-Language Models with Decoupled Tokenizers and<br>
+Multi-Token Prediction</h3>
+		<p>Xiaoran Fan<sup>1*</sup>, 
+			Zhichao Sun<sup>1*</sup>, 
+			Yangfan Gao<sup>1*</sup>, 
+			Jingfei Xiong<sup>1*</sup>, 
+			Hang Yan<sup>2*</sup>,
+			Yifei Cao<sup>1</sup>,
+			<br/>
+			Jiajun Sun<sup>1</sup>,
+			Shuo Li<sup>1</sup>,
+			Zhihao Zhang<sup>1</sup>,
+			Zhiheng Xi<sup>1</sup>,
+			Yuhao Zhou<sup>1</sup>,
+			Senjie Jin<sup>1</sup>,
+			Changhao Jiang<sup>1</sup>,
+			<br>
+			Junjie Ye<sup>1</sup>,
+			Ming Zhang<sup>1</sup>,
+			Rui Zheng<sup>1</sup>,
+			Zhenhua Han,
+			Yunke Zhang<sup>3</sup>,
+			Demei Yan<sup>3</sup>,
+			Shaokang Dong<sup>3</sup>,
+			<br>
+			Tao Ji<sup>1†</sup>,
+			Tao Gui<sup>1†</sup>,
+			Qi Zhang<sup>1†</sup>,
+			Xuanjing Huang<sup>1†</sup>
+		</p>
+		<p>
+			<sup>1</sup>Fudan University,
+			<sup>2</sup>The Chinese University of Hong Kong,
+			<sup>3</sup>Honor Device Co., Ltd
+			<br><br>
+			<sup>*</sup>Equal contribution,
+			<sup>†</sup>Corresponding author
+		</p>
+		<!-- <h5><i>Anonymous Authors</i></h5> -->
+      	<p> 
+			<a href="" target="_blank" rel="noopener noreferrer">Paper</a> 
+			|
+			<a href="https://github.com/cnxupupup/SLM-Decoupled-MTP" target="_blank" rel="noopener noreferrer">Github Repo</a>
+		</p>
 	</div>
 	<p><b>Abstract</b> Speech-language models (SLMs) offer a promising path toward unifying speech and text understanding and generation.
 However, challenges remain in achieving effective cross-modal alignment and high-quality speech generation. 
@@ -109,7 +146,7 @@ heads, generating multiple tokens in parallel.
 
 <div class="container pt-5 mt-5 shadow-lg p-5 mb-5 bg-white rounded" >
 	<h2 id="tok-comp" style="text-align: center;">SLMs Trained with Different Speech Tokenizers</h2>
-	<p>Comparison of SLMs trained with different kinds of speech tokenizers (<b>Coupled</b>, <b>Semi-decoupled</b>, <b>Decoupled</b>)</p>
+	<p>Comparison of SLMs trained with different kinds of speech tokenizers (<b>Coupled</b>, <b>Semi-decoupled</b>, <b>Decoupled</b>).</p>
 	<!-- <div class="legend-container">
             <div class="legend-item">
                 <div class="legend-box" style="background-color: #e8f5e9;"></div>
@@ -341,7 +378,7 @@ heads, generating multiple tokens in parallel.
 
 	<h2 id="spk-aware-comp" style="text-align: center;">NTP vs. MTP & Speaker-Aware TTS</h2>
 	<!-- <p>Comparison of TTS with <b>Next-Token Prediction (NTP)</b> and <b>Multi-Token Prediction (MTP)</b> on SLMs trained with decoupled tokenizers* w/ and w/o <b>Speaker-Aware TTS</b> </p> -->
-	<span> Comparing <b>Next-Token Prediction (NTP)</b> and <b>Multi-Token Prediction (MTP)</b> for TTS on SLMs using decoupled tokenizers*, w/ and w/o <b>Speaker-Aware</b> feature</span>
+	<p>Comparing <b>Next-Token Prediction (NTP)</b> and <b>Multi-Token Prediction (MTP)</b> for TTS on SLMs using decoupled tokenizers*, w/ and w/o <b>Speaker-Aware</b> paradigm.</p>
 
 	<!-- <div class="legend-container">
             <div class="legend-item">
@@ -618,7 +655,7 @@ heads, generating multiple tokens in parallel.
 			</table>
 		
 	</div>
-	* We chose FACodec as a decoupled tokenizer to conduct experiments on different settings above
+	<p style="font-size: small;">* We chose FACodec as a decoupled tokenizer to conduct experiments on different settings above.</p>
 
 	
 </div>
@@ -626,8 +663,8 @@ heads, generating multiple tokens in parallel.
 
 <div class="container pt-5 mt-5 shadow-lg p-5 mb-5 bg-white rounded">
 	<h2 id="role-play" style="text-align: center;">Role-Playing Knowledge QA</h2>
-	<p>Comparison of SLMs with Top-3 Coupled, Semi-Decoupled and Decoupled speech tokenizers on <b>Role-Playing Knowledge QA</b> task</p>
-	<p>Roles are selected from <a href="https://en.wikipedia.org/wiki/Genshin_Impact"><i>Genshin Impact</i></a></p>
+	<p>Comparison of SLMs with Top-3 Coupled, Semi-Decoupled and Decoupled speech tokenizers on <b>Role-Playing Knowledge QA</b> task.</p>
+	<p>Roles are selected from <a href="https://en.wikipedia.org/wiki/Genshin_Impact"><i>Genshin Impact</i></a>.</p>
 	<!-- <div class="legend-container">
             <div class="legend-item">
                 <div class="legend-box" style="background-color: #e8f5e9;"></div>
@@ -658,7 +695,7 @@ heads, generating multiple tokens in parallel.
 					<tr class="header-row">
 						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s"></th>
 						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Sample Type</th>
-						<th style="vertical-align : middle;text-align: center;" class="role-play">Sample</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play">Question</th>
 						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Ground<br/>Truth</th>
 						<!-- <th style="vertical-align : middle;text-align: center;" class="role-play">Reference<br/>Speech</th> -->
 						 <th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Prompt</th>
@@ -671,7 +708,7 @@ heads, generating multiple tokens in parallel.
 				</thead>
 				<tr style="background-color: #e8f5e9;">
 					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s" rowspan="4">Good cases</td>
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Sample<br/>&<br/>Seen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Question<br/>&<br/>Seen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">How many imperial gallons are in a firkin?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>9</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
@@ -737,7 +774,7 @@ heads, generating multiple tokens in parallel.
 				</tr>
 
 				<tr style="background-color: #e8f5e9;">
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Sample<br/>&<br/>Seen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Question<br/>&<br/>Seen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">What style of art did Henri Matisse do?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>impressionism</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
@@ -804,7 +841,7 @@ heads, generating multiple tokens in parallel.
 				</tr>
 
 				<tr style="background-color: #e8f5e9;">
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Sample<br/>&<br/>Unseen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Question<br/>&<br/>Unseen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">Which golf shot is the opposite of a slice?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>hook</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
@@ -870,7 +907,7 @@ heads, generating multiple tokens in parallel.
 				</tr>
 
 				<tr style="background-color: #e8f5e9;">
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Sample<br/>&<br/>Unseen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Question<br/>&<br/>Unseen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">What is the largest city in Spain?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>Madrid</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
@@ -937,7 +974,7 @@ heads, generating multiple tokens in parallel.
 
 				<tr style="background-color: #ffebee;">
 					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">Bad case</td>
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Sample<br/>&<br/>Unseen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Question<br/>&<br/>Unseen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">Satya Nadella, boss of which vast corporation, apologised in 2014 for suggesting female workers should rely on faith and karma instead of asking for a pay rise?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>Microsoft</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
@@ -1007,9 +1044,11 @@ heads, generating multiple tokens in parallel.
 			</div>
 		</div>
 
-		<p style="color: #099715; font-size: small;">*&nbsp; <b>Correct answer</b></p>
-		<p style="color: #bd1a32; font-size: small;">**&nbsp; <b>Wrong answer</b></p>
-		<p style="color: #b7bc23; font-size: small;">***&nbsp; <b>Partially correct answer</b></p>
+		<span style="color: #099715; font-size: small;">*&nbsp;<b>Correct answer</b></span>
+		<br>
+		<span style="color: #bd1a32; font-size: small;">**&nbsp;<b>Wrong answer</b></span>
+		<br>
+		<span style="color: #b7bc23; font-size: small;">***&nbsp;<b>Partially correct answer</b></span>
 
 		</div>
 
