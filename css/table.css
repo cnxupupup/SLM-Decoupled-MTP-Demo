@@ -1,0 +1,151 @@
+.tok-table,
+.spk-aware-table,
+.role-play-table
+{
+  table-layout: fixed;
+}
+
+.legend-container 
+{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e0e6ed;
+}
+.legend-item 
+{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-box 
+{
+  width: 40px;
+  height: 25px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.legend-text 
+{
+  font-weight: 500;
+  font-size: 16px;
+}
+
+/* Plan A */
+
+/* .tok-type:nth-child(1){
+  width: 300px;
+}
+
+.tok-type:nth-child(2){
+  width: 750px;
+}
+
+.tok-type:nth-child(3){
+  width: 300px;
+}
+.tok-type:nth-child(4){
+  width: 200px;
+
+.tok-type:nth-child(1), 
+.tok-type:nth-child(2), 
+.tok-type:nth-child(3),
+.tok-name:nth-child(1),
+.tok-name:nth-child(7),
+.tok-name:nth-child(9),
+td:nth-child(1),
+td:nth-child(7),
+td:nth-child(9)
+{
+      border-right: 1px solid #000;
+}
+} */
+
+
+/* Plan B */
+.tok-type:nth-child(1){
+  width: 100px;
+}
+.tok-type:nth-child(2){
+  width: 300px;
+}
+
+.tok-type:nth-child(5){
+  width: 1400px;
+}
+
+.tok-type:nth-child(6){
+  width: 475px;
+}
+
+.tok-type:nth-child(3){
+  width: 300px;
+}
+
+.tok-type:nth-child(4){
+  width: 500px;
+}
+
+.ntp-mtp:nth-child(1){
+  width: 100px;
+}
+.ntp-mtp:nth-child(2){
+  width: 300px;
+}
+
+.ntp-mtp:nth-child(3)
+{
+  width: 300px;
+}
+
+.ntp-mtp:nth-child(7),
+.ntp-mtp:nth-child(4),
+.ntp-mtp:nth-child(5),
+.ntp-mtp:nth-child(6)
+{
+  width: 550px;
+}
+
+.role-play-head:nth-child(1)
+{
+  width: 100px;
+}
+
+.role-play-head:nth-child(2)
+{
+  width: 200px;
+}
+
+.role-play-head:nth-child(3),
+.role-play-head:nth-child(4)
+{
+  width: 300px;
+}
+
+.role-play-head:nth-child(5),
+.role-play-head:nth-child(6),
+.role-play-head:nth-child(7)
+{
+  width: 300px;
+}
+
+.role-play-head:nth-child(8)
+{
+  width: 900px;
+}
+
+
+
+
+.tok-text,
+.tok-d,
+.tok-s
+{
+      border-right: 1px solid #000;
+}

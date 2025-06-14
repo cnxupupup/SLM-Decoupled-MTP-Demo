@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="generator" content="Hugo 0.88.1" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
+	<link rel="stylesheet" href="css/custom.css">
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/table.css">
+
+	<title>SLM-DM</title>
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+
+<body data-new-gr-c-s-check-loaded="14.1091.0" data-gr-ext-installed="">
+
+<div class="container" >
+<header role="banner">
+</header>
+<main role="main">
+<article itemscope itemtype="https://schema.org/BlogPosting">
+
+<div class="container pt-5 mt-5 shadow-lg p-5 mb-5 bg-white rounded">
+	<div class="text-center">
+	<!-- <h2 style="display: flex; align-items: center; justify-content: center">
+		<object type="image/svg+xml" data="pics/square-f5.svg" style="width: 72px; height: 72px;"></object>-TTS: <span style="margin-left: 10px;"></span> 
+	</h2> -->
+      <h2>Speech-Language Models with Decoupled Tokenizers and
+Multi-Token Prediction</h2>
+		<h5><i>Anonymous Authors</i></h5>
+      <!-- <h5> <a href="https://github.com/SWivid/F5-TTS" target="_blank" rel="noopener noreferrer">Code</a>; <a href="https://arxiv.org/abs/2410.06885" target="_blank" rel="noopener noreferrer">Paper</a> </h5> -->
+	</div>
+	<p><b>Abstract</b> Speech-language models (SLMs) offer a promising path toward unifying speech and text understanding and generation.
+However, challenges remain in achieving effective cross-modal alignment and high-quality speech generation. 
+In this work, we systematically investigate the impact of key components (i.e., speech tokenizers, speech heads, and speaker modeling) on the performance of LLM-centric SLMs.
+We compare coupled, semi-decoupled, and fully decoupled speech tokenizers under a fair SLM framework and find that decoupled tokenization significantly improves alignment and synthesis quality.
+To address the information density mismatch between speech and text, we introduce multi-token prediction (MTP) into SLMs, enabling each hidden state to decode multiple speech tokens.
+This leads to up to <b>12× faster</b> decoding and a substantial <b>drop in Word Error Rate (from 6.07 to 3.01)</b>. 
+Furthermore, we propose a speaker-aware generation paradigm and introduce RoleTriviaQA, a large-scale role-playing knowledge QA benchmark with diverse speaker identities. 
+Experiments demonstrate that our methods enhance both knowledge understanding and speaker consistency. 
+	</p>
+
+	<p>
+	<b>Contents</b>
+      <ul>
+        <li><a href="#model-overview">Overview</a></li>
+		<!-- <li><a href="#overview-decouple">Overview of Decoupled Tokenizer and SLM</a></li>
+		<li><a href="#overview-ntp-mtp">Overview of NTP and MTP</a></li>
+		<li><a href="#overview-ntp-mtp">Overview of Role-Playing Knowledge QA</a></li> -->
+        <li><a href="#tok-comp">SLMs Trained with Different Speech Tokenizers</a></li>
+        <!-- <li><a href="#ntp-mtp-comp">SLMs Comparison with Different Speech Heads</a></li> -->
+        <li><a href="#spk-aware-comp">NTP vs. MTP & Speaker-Aware TTS</a></li>
+		<li><a href="#role-play">Role-Playing Knowledge QA</a></li>
+      </ul>
+	</p>
+
+	<p><b>This page is for research demonstration purposes only.</b></p>
+
+	
+</div>
+<div class="container pt-5 mt-5 shadow-lg p-5 mb-5 bg-white rounded">
+	<h2 id="model-overview" style="text-align: center;">Overview</h2>
+
+	<body>
+	<p style="text-align: center;">
+		<img src="pics/tok-comp.svg" height="500" width="1000">
+	</p>
+	</body>
+	<p style="text-align: center;" >
+		<b>Figure 1</b>: <b>Left</b>: Overview of a Speech Language Model (SLM) trained with decoupled speech tokenizer (Section 2.1)
+and Speaker-Aware TTS; <b>Right</b>: The architecture of a possible decoupled speech tokenizer, featuring
+speech quantization, reconstruction in a decoupled manner and speaker-specified embedding extraction.
+	</p>
+	<br>
+
+	<body>
+	<p style="text-align: center;">
+		<img src="pics/ntp-mtp.svg" height="200" width="500">
+	</p>
+	</body>
+	<p style="text-align: center;" >
+		<b>Figure 2</b>: Illustration of our NTP and MTP architecture.
+<b>(a) NTP:</b> single vocabulary and single prediction head;
+<b>(b) MTP:</b> multiple vocabularies and multiple prediction
+heads, generating multiple tokens in parallel.
+	</p>
+	<br>
+
+	<body>
+	<p style="text-align: center;">
+		<img src="pics/role-play.svg" height="200" width="500">
+	</p>
+	</body>
+	<p style="text-align: center;" >
+		<b>Figure 3</b>: Illustration of Role-Playing Knowledge QA.
+	</p>
+
+
+	
+</div>
+
+
+<!-- This is Plan B -->
+
+<div class="container pt-5 mt-5 shadow-lg p-5 mb-5 bg-white rounded" >
+	<h2 id="tok-comp" style="text-align: center;">SLMs Trained with Different Speech Tokenizers</h2>
+	<p>Comparison of SLMs trained with different kinds of speech tokenizers (<b>Coupled</b>, <b>Semi-decoupled</b>, <b>Decoupled</b>)</p>
+	<!-- <div class="legend-container">
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #e8f5e9;"></div>
+                <div class="legend-text">Good Case</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #ffebee;"></div>
+                <div class="legend-text">Bad Case</div>
+            </div>
+    </div> -->
+	<div style="overflow-x: auto;">
+		<div class="table-responsive pt-3">
+			<table class="table table-hover pt-2 tok-table">
+				<thead>
+					<tr class="header-row">
+						<th style="vertical-align : middle;text-align: center;" class="tok-type tok-s"></th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-type tok-d"></th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-type tok-d">Decoupled Tokenizer</th>
+						<th style="vertical-align : middle;text-align: center;" colspan="2" class="tok-type tok-s">Semi-Decoupled Tokenizer</th>
+						<th style="vertical-align : middle;text-align: center;" colspan="5" class="tok-type">Coupled Tokenizer</th>
+						
+
+					</tr>
+				</thead>
+			<thead>
+				<tr class="header-row">
+						<th style="vertical-align : middle;text-align: center;" class="tok-s"></th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-text" >Text</th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-d">FACodec-NTP</th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-name">SpeechTokenizer-5L</th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-s">SpeechTokenizer-8L</th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-name">Encodec-4L</th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-name">Encodec-8L</th>
+						<!-- <th style="vertical-align : middle;text-align: center;" class="tok-name">WavTokenizer</th> -->
+						<th style="vertical-align : middle;text-align: center;" class="tok-name">WavTokenizer-v2</th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-name">StableCodec</th>
+						<th style="vertical-align : middle;text-align: center;" class="tok-name">BigCodec</th>
+						
+
+				</tr>
+			</thead>
+			<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="tok-s" rowspan="3">Good cases</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-text">"It is a very delicate question," said he.</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-d">
+						<audio controls src="audios/tok-comp/facodec-ntp/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						WER: 0.0&emsp;&emsp;UTMOS: 4.33
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/spt-5l/case-1.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 0.0&emsp;&emsp;UTMOS: 3.51
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-s">
+						<audio controls src="audios/tok-comp/spt-8l/case-1.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 12.5&emsp;&emsp;UTMOS: 4.17
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed*</b></p>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td>
+					<!-- <td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/wavtok-v1/case-1.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 25.0&emsp;&emsp;UTMOS: 4.31
+					</td> -->
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/wavtok-v2/case-1.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 0.0&emsp;&emsp;UTMOS: 4.05
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/stablecodec/case-1.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 12.5&emsp;&emsp;UTMOS: 3.68
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/bigcodec/case-1.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 0.0&emsp;&emsp;UTMOS: 4.46
+					</td>
+			</tr>
+
+			<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="tok-text">In the distance the clouds resemble great bales of cotton, piled up in picturesque disorder.</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-d">
+						<audio controls src="audios/tok-comp/facodec-ntp/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						WER: 0.0&emsp;&emsp;UTMOS: 4.47
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/spt-5l/case-2.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 6.67&emsp;&emsp;UTMOS: 4.18
+					</td>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-s">
+						<audio controls src="audios/tok-comp/spt-8l/case-2.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 15.4&emsp;&emsp;UTMOS: 3.77
+					</td>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td>
+					<!-- <td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td> -->
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/wavtok-v2/case-2.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 40.0&emsp;&emsp;UTMOS: 4.05
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/stablecodec/case-2.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 6.67&emsp;&emsp;UTMOS: 4.46
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/bigcodec/case-2.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 6.67&emsp;&emsp;UTMOS: 3.75
+					</td>
+			</tr>
+
+			<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="tok-text">It was kind of you to spend so much time in our behalf.</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-d">
+						<audio controls src="audios/tok-comp/facodec-ntp/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						WER: 0.0&emsp;&emsp;UTMOS: 4.45
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/spt-5l/case-3.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 13.3&emsp;&emsp;UTMOS: 4.30
+					</td>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-s">
+						<audio controls src="audios/tok-comp/spt-8l/case-3.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 0.0&emsp;&emsp;UTMOS: 4.29
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/encodec-4l/case-3.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 7.7&emsp;&emsp;UTMOS: 3.04
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/encodec-8l/case-3.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 15.4&emsp;&emsp;UTMOS: 2.82
+					</td>
+					<!-- <td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td> -->
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/wavtok-v2/case-3.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 87.7&emsp;&emsp;UTMOS: 4.41
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/stablecodec/case-3.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 0.0&emsp;&emsp;UTMOS: 4.39
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/bigcodec/case-3.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 7.7&emsp;&emsp;UTMOS: 4.34
+					</td>
+			</tr>
+
+			<tr style="background-color: #ffebee;">
+				<td style="vertical-align : middle;text-align: center;" class="tok-s">Bad case</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-text">This new plant takes high tension polyphase current from a water power thirty or forty miles away at Paderno, on the river Adda, flowing from the Apennines; but delivers low tension direct current for distribution to the regular Edison three wire system throughout Milan.</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-d">
+						<audio controls src="audios/tok-comp/facodec-ntp/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						WER: 29.5&emsp;&emsp;UTMOS: 3.36
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/spt-5l/case-bad.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 31.8&emsp;&emsp;UTMOS: 3.82
+					</td>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-s">
+						<p><b>Failed</b></p>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td>
+					<!-- <td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td> -->
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<audio controls src="audios/tok-comp/stablecodec/case-bad.wav" style="width: 225px;"></audio>
+						<br/>
+						WER: 25.0&emsp;&emsp;UTMOS: 2.90
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="tok-name">
+						<p><b>Failed</b></p>
+					</td>
+			</tr>
+
+			</table>
+		</div>
+		<p style="font-size: small;">*&nbsp;<b>Failed</b> indicates that SLMs failed to predict the "end of speech" token.</p>
+	</div>
+</div>
+
+
+
+<div class="container pt-5 mt-5 shadow-lg p-5 mb-5 bg-white rounded">
+
+	<h2 id="spk-aware-comp" style="text-align: center;">NTP vs. MTP & Speaker-Aware TTS</h2>
+	<p>Comparison of TTS w/ and w/o <b>Multi-Token Prediction (MTP)</b> and <b>Speaker-Aware</b> on SLMs trained with decoupled tokenizers*</p>
+
+	<!-- <div class="legend-container">
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #e8f5e9;"></div>
+                <div class="legend-text">Good Case</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #ffebee;"></div>
+                <div class="legend-text">Bad Case</div>
+            </div>
+	</div> -->
+
+	<div style="overflow-x: auto;">
+		<div class="table-responsive pt-3">
+			<table class="table table-hover pt-2 spk-aware-table">
+				<thead>
+					<tr class="header-row">
+						<th style="vertical-align : middle;text-align: center;" class="ntp-mtp tok-s"></th>
+						<th style="vertical-align : middle;text-align: center;" class="ntp-mtp"></th>
+						<th style="vertical-align : middle;text-align: center;" class="ntp-mtp tok-s"></th>
+						<th style="vertical-align : middle;text-align: center;" colspan="2" class="ntp-mtp tok-s">NTP</th>
+						<th style="vertical-align : middle;text-align: center;" colspan="2" class="ntp-mtp tok-s">MTP-3H</th>
+						<th style="vertical-align : middle;text-align: center;" colspan="2" class="ntp-mtp tok-s">MTP-6H</th>
+						<th style="vertical-align : middle;text-align: center;" colspan="2" class="ntp-mtp">MTP-12H</th>
+						
+
+					</tr>
+				</thead>
+
+			    <thead>
+				<tr class="header-row">
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head tok-s"></th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head">Text</th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head tok-s">Prompt</th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head">w/o Speaker-Aware</th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head tok-s">w/ Speaker-Aware</th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head">w/o Speaker-Aware</th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head tok-s">w/ Speaker-Aware</th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head">w/o Speaker-Aware</th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head tok-s">w/ Speaker-Aware</th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head">w/o Speaker-Aware</th>
+						<th style="vertical-align : middle;text-align: center;" class="spk-aware-head">w/ Speaker-Aware</th>
+				</tr>
+				</thead>
+
+				<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s" rowspan="3">Good cases</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">"Yes," replied my uncle, "and there is a sea lizard of vast size.</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/ref/case-1.wav" style="width: 250px;"></audio>
+					</td>
+
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/ntp/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.19&nbsp;SIM: 0.51</span>
+					</td>
+
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/ntp/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.34&nbsp;SIM: 0.54</span>
+					</td>
+
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-3/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.17&nbsp;SIM: 0.45</span>
+					</td>
+
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-3/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.20<br/>SIM: 0.53 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.20&nbsp;SIM: 0.53</span>
+					</td>
+
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-6/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.03<br/>SIM: 0.49 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.03&nbsp;SIM: 0.49</span>
+					</td>
+
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-6/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 3.93<br/>SIM: 0.59 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 3.93&nbsp;SIM: 0.59</span>
+					</td>
+
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-12/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.29<br/>SIM: 0.56 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.29&nbsp;SIM: 0.56</span>
+					</td>
+
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-12/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.36<br/>SIM: 0.59 -->
+						 <span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.36&nbsp;SIM: 0.59</span>
+					</td>
+				</tr>
+				
+				<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">I don't drink it myself, but I like to see it behave when it's poured.</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/ref/case-2.wav" style="width: 250px;"></audio>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/ntp/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 3.73<br/>SIM: 0.47 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 3.73&nbsp;SIM: 0.47</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/ntp/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 3.85<br/>SIM: 0.69 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 3.85&nbsp;SIM: 0.69</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-3/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.37<br/>SIM: 0.55 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.37&nbsp;SIM: 0.55</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-3/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.38<br/>SIM: 0.61 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.38&nbsp;SIM: 0.61</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-6/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.22<br/>SIM: 0.55 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.22&nbsp;SIM: 0.55</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-6/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.36<br/>SIM: 0.64 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.36&nbsp;SIM: 0.64</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-12/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.10<br/>SIM: 0.32 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.10&nbsp;SIM: 0.32</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-12/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.12<br/>SIM: 0.60 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.12&nbsp;SIM: 0.60</span>
+					</td>
+				</tr>
+
+
+				<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">After the station had been running several months and was technically a success, we began to look after the financial part.</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/ref/case-3.wav" style="width: 250px;"></audio>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/ntp/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.45<br/>SIM: 0.50 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.45&nbsp;SIM: 0.50</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/ntp/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.46<br/>SIM: 0.67 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.46&nbsp;SIM: 0.67</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-3/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.31<br/>SIM: 0.56 -->
+						 <span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.31&nbsp;SIM: 0.56</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-3/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.41<br/>SIM: 0.71 -->
+						 <span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.41&nbsp;SIM: 0.71</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-6/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 3.78<br/>SIM: 0.60 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 3.78&nbsp;SIM: 0.60</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-6/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.44<br/>SIM: 0.71 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.44&nbsp;SIM: 0.71</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-12/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.07<br/>SIM: 0.51 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.07&nbsp;SIM: 0.51</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-12/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.40<br/>SIM: 0.64 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.40&nbsp;SIM: 0.64</span>
+					</td>
+
+				</tr>
+
+				<tr style="background-color: #ffebee;">
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">Bad case</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">Sheriff Jones made several visits unmolested on their part, and without any display of writs or demand for the surrender of alleged offenders on his own.</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/ref/case-bad.wav" style="width: 250px;"></audio>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/ntp/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 7.59&emsp;UTMOS: 4.36<br/>SIM: 0.45 -->
+						<span style="font-size: 15px;">WER: 15.3&nbsp;UTMOS: 4.32&nbsp;SIM: 0.32</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/ntp/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.39<br/>SIM: 0.61 -->
+						<span style="font-size: 15px;">WER: 15.3&nbsp;UTMOS: 3.75&nbsp;SIM: 0.53</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-3/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.44<br/>SIM: 0.44 -->
+						<span style="font-size: 15px;">WER: 26.9&nbsp;UTMOS: 4.04&nbsp;SIM: 0.28</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-3/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.38<br/>SIM: 0.57 -->
+						<span style="font-size: 15px;">WER: 23.1&nbsp;UTMOS: 3.73&nbsp;SIM: 0.55</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-6/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.01<br/>SIM: 0.55 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 3.66&nbsp;SIM: 0.45</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-6/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.37<br/>SIM: 0.62 -->
+						<span style="font-size: 15px;">WER: 7.69&nbsp;UTMOS: 3.87&nbsp;SIM: 0.45</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/no-spk-aware/mtp-12/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 3.62<br/>SIM: 0.54 -->
+						<span style="font-size: 15px;">WER: 3.84&nbsp;UTMOS: 3.62&nbsp;SIM: 0.50</span>
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content">
+						<audio controls src="audios/ntp-mtp-spk-aware/spk-aware/mtp-12/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						<!-- WER: 0.0&emsp;UTMOS: 4.24<br/>SIM: 0.61 -->
+						<span style="font-size: 15px;">WER: 0.0&nbsp;UTMOS: 4.23&nbsp;SIM: 0.64</span>
+					</td>
+				</tr>
+			</table>
+		
+	</div>
+	* We chose FACodec as a decoupled tokenizer to conduct experiments on different settings above
+
+	
+</div>
+</div>
+
+<div class="container pt-5 mt-5 shadow-lg p-5 mb-5 bg-white rounded">
+	<h2 id="role-play" style="text-align: center;">Role-Playing Knowledge QA</h2>
+	<p>Comparison of SLMs with Top-3 Coupled, Semi-Decoupled and Decoupled speech tokenizers on <b>Role-Playing Knowledge QA</b> task</p>
+	<p>Roles are selected from <a href="https://en.wikipedia.org/wiki/Genshin_Impact"><i>Genshin Impact</i></a></p>
+	<!-- <div class="legend-container">
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #e8f5e9;"></div>
+                <div class="legend-text">Good Case</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #ffebee;"></div>
+                <div class="legend-text">Bad Case</div>
+            </div>
+	</div> -->
+	<div style="overflow-x: auto;">
+		<div class="table-responsive pt-3">
+			<table class="table table-hover pt-2 role-play-table">
+				<thead>
+					<tr class="header-row">
+						<th style="vertical-align : middle;text-align: center;" class="role-play-head"></th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play-head"></th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play-head"></th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play-head"></th>
+						<!-- <th style="vertical-align : middle;text-align: center;" class="role-play">Reference<br/>Speech</th> -->
+						 <th style="vertical-align : middle;text-align: center;" class="role-play-head tok-s"></th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play-head tok-s">Decoupled Tokenizer</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play-head tok-s">Semi-decoupled Tokenizer</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play-head" colspan="3">Coupled Tokenizer</th>
+					</tr>
+				</thead>
+				<thead>
+					<tr class="header-row">
+						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s"></th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Query Type</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play">Query</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Ground<br/>Truth</th>
+						<!-- <th style="vertical-align : middle;text-align: center;" class="role-play">Reference<br/>Speech</th> -->
+						 <th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Prompt</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s">FACodec</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s">SpeechTokenizer</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play">WavTokenizer-v2</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play">BigCodec</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play">StableCodec</th>
+					</tr>
+				</thead>
+				<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s" rowspan="4">Good cases</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Query<br/>&<br/>Seen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">How many imperial gallons are in a firkin?</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>9</b></td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<audio controls src="audios/role-play/ref/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						Role: Xiao
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #099715;"><b>nine*</b></span>
+						<br/><br/>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/facodec/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.75
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>one hundred**</b></span>
+						<br/><br/>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/spt/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.13
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>four</b></span>
+						<br/><br/>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/wavtok-v2/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.49
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>five</b></span>
+						<br/><br/>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/bigcodec/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.21
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>two</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/stablecodec/case-1.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.27
+					</td>
+				</tr>
+
+				<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Query<br/>&<br/>Seen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">What style of art did Henri Matisse do?</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>impressionism</b></td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<audio controls src="audios/role-play/ref/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						Role: Arataki Itto
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #099715;"><b>impressionism</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/facodec/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.75
+					</td>
+					<td style="vertical-align: middle; text-align: center;" class="role-play tok-s">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #b7bc23; font-weight: bold;">impressionism in media***</span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/spt/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.12
+					</td>
+					
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32; font-weight: bold;">fauvisme</span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/wavtok-v2/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.22
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #b7bc23; font-weight: bold;"> impressionism in sculpture</span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/bigcodec/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.23
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32; font-weight: bold;">impressionist</span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/bigcodec/case-2.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.07
+					</td>
+				</tr>
+
+				<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Query<br/>&<br/>Unseen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">Which golf shot is the opposite of a slice?</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>hook</b></td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<audio controls src="audios/role-play/ref/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						Role: Eula
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #099715;"><b>hook</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/facodec/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.71
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>morris</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/spt/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: -0.02
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>condor yacht</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/wavtok-v2/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.21
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>tiddliwinks</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/bigcodec/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.35
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>cutty sall</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/stablecodec/case-3.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.23
+					</td>
+				</tr>
+
+				<tr style="background-color: #e8f5e9;">
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Query<br/>&<br/>Unseen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">What is the largest city in Spain?</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>Madrid</b></td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<audio controls src="audios/role-play/ref/case-4.wav" style="width: 250px;"></audio>
+						<br/>
+						Role: Jean
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #099715;"><b>madrid</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/facodec/case-4.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.60
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>jorvili</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/spt/case-4.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.10
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>un locode itvce</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/wavtok-v2/case-4.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.19
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>castro</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/bigcodec/case-4.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.07
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>un locode dehaj</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/stablecodec/case-4.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.19
+					</td>
+				</tr>
+
+				<tr style="background-color: #ffebee;">
+					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">Bad case</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Query<br/>&<br/>Unseen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">Satya Nadella, boss of which vast corporation, apologised in 2014 for suggesting female workers should rely on faith and karma instead of asking for a pay rise?</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>Microsoft</b></td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<audio controls src="audios/role-play/ref/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						Role: Albedo
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #099715;"><b>microsoft</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/facodec/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.57
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #b7bc23;"><b>microsoft inc</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/spt/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: -0.05
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>reds</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/wavtok-v2/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.08
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32"><b>nike</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/bigcodec/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: -0.03
+					</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play">
+						<span><b>Text answer</b></span>
+						<br>
+						<span>The answer is</span>
+						<span style="color: #bd1a32;"><b>nikkei</b></span>
+						<br><br>
+						<span><b>Speech answer</b></span>
+						<audio controls src="audios/role-play/stablecodec/case-bad.wav" style="width: 250px;"></audio>
+						<br/>
+						SIM: 0.30
+					</td>
+				</tr>
+			</table>
+			<div>
+			</div>
+		</div>
+
+		<p style="color: #099715; font-size: small;">*&nbsp; <b>Correct answer</b></p>
+		<p style="color: #bd1a32; font-size: small;">**&nbsp; <b>Wrong answer</b></p>
+		<p style="color: #b7bc23; font-size: small;">***&nbsp; <b>Partially correct answer</b></p>
+
+		</div>
+
+</div>
+
+</article>
+</main>
+</div>
+
+</body>
+</html>
