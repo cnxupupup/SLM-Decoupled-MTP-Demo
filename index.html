@@ -340,7 +340,8 @@ heads, generating multiple tokens in parallel.
 <div class="container pt-5 mt-5 shadow-lg p-5 mb-5 bg-white rounded">
 
 	<h2 id="spk-aware-comp" style="text-align: center;">NTP vs. MTP & Speaker-Aware TTS</h2>
-	<p>Comparison of TTS w/ and w/o <b>Multi-Token Prediction (MTP)</b> and <b>Speaker-Aware</b> on SLMs trained with decoupled tokenizers*</p>
+	<!-- <p>Comparison of TTS with <b>Next-Token Prediction (NTP)</b> and <b>Multi-Token Prediction (MTP)</b> on SLMs trained with decoupled tokenizers* w/ and w/o <b>Speaker-Aware TTS</b> </p> -->
+	<span> Comparing <b>Next-Token Prediction (NTP)</b> and <b>Multi-Token Prediction (MTP)</b> for TTS on SLMs using decoupled tokenizers*, w/ and w/o <b>Speaker-Aware</b> feature</span>
 
 	<!-- <div class="legend-container">
             <div class="legend-item">
@@ -656,8 +657,8 @@ heads, generating multiple tokens in parallel.
 				<thead>
 					<tr class="header-row">
 						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s"></th>
-						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Query Type</th>
-						<th style="vertical-align : middle;text-align: center;" class="role-play">Query</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Sample Type</th>
+						<th style="vertical-align : middle;text-align: center;" class="role-play">Sample</th>
 						<th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Ground<br/>Truth</th>
 						<!-- <th style="vertical-align : middle;text-align: center;" class="role-play">Reference<br/>Speech</th> -->
 						 <th style="vertical-align : middle;text-align: center;" class="role-play tok-s">Prompt</th>
@@ -670,7 +671,7 @@ heads, generating multiple tokens in parallel.
 				</thead>
 				<tr style="background-color: #e8f5e9;">
 					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s" rowspan="4">Good cases</td>
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Query<br/>&<br/>Seen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Sample<br/>&<br/>Seen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">How many imperial gallons are in a firkin?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>9</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
@@ -736,7 +737,7 @@ heads, generating multiple tokens in parallel.
 				</tr>
 
 				<tr style="background-color: #e8f5e9;">
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Query<br/>&<br/>Seen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Sample<br/>&<br/>Seen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">What style of art did Henri Matisse do?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>impressionism</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
@@ -803,7 +804,7 @@ heads, generating multiple tokens in parallel.
 				</tr>
 
 				<tr style="background-color: #e8f5e9;">
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Query<br/>&<br/>Unseen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Sample<br/>&<br/>Unseen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">Which golf shot is the opposite of a slice?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>hook</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
@@ -869,7 +870,7 @@ heads, generating multiple tokens in parallel.
 				</tr>
 
 				<tr style="background-color: #e8f5e9;">
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Query<br/>&<br/>Unseen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">Out-of-Domain Sample<br/>&<br/>Unseen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">What is the largest city in Spain?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>Madrid</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
@@ -936,7 +937,7 @@ heads, generating multiple tokens in parallel.
 
 				<tr style="background-color: #ffebee;">
 					<td style="vertical-align : middle;text-align: center;" class="spk-aware-content tok-s">Bad case</td>
-					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Query<br/>&<br/>Unseen role</td>
+					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">In-Domain Sample<br/>&<br/>Unseen role</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play">Satya Nadella, boss of which vast corporation, apologised in 2014 for suggesting female workers should rely on faith and karma instead of asking for a pay rise?</td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">The answer is <b>Microsoft</b></td>
 					<td style="vertical-align : middle;text-align: center;" class="role-play tok-s">
